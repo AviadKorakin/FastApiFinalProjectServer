@@ -26,7 +26,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(get_person_router())  # Using the dependency-injected router
 
 # Add the middleware for logging
-from middleware import log_requests
+from utils.middleware import log_requests
 
 app.middleware("http")(log_requests)
 
