@@ -4,8 +4,13 @@ from repositories.person_repository import PersonRepository
 from services.person_service import PersonService
 
 class PersonServiceImplementation(PersonService):
-    def __init__(self, repository: PersonRepository):
-        self.repository = repository
+    _instance = None
+
+    def __new__(cls, repository: PersonRepository):
+        if cls._instance is None:
+            cls._instance = super(PersonServiceImplementation, cls).__new__(cls)
+            cls._instance.repository = repository
+        return cls._instance
 
     def create_person(self, first_name: str, last_name: str, age: int) -> Person:
         if age < 0 or age > 100:

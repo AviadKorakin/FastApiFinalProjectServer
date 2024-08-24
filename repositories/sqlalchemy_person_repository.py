@@ -7,8 +7,12 @@ from app.database import get_db
 
 
 class SQLAlchemyPersonRepository(PersonRepository):
-    def __init__(self):
-        pass  # No session initialization here
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(SQLAlchemyPersonRepository, cls).__new__(cls)
+        return cls._instance
 
     def _get_session(self) -> Session:
         """Helper method to get a new session from the get_db function."""
