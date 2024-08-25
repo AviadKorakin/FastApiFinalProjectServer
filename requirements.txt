@@ -3,3 +3,8 @@ psycopg2-binary
 sqlalchemy
 alembic
 uvicorn
+passlib[bcrypt]
+bcrypt
+pydantic
+pydantic[email]
+python-dotenv

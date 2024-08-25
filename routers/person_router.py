@@ -7,7 +7,7 @@ from boundaries.person_boundary import PersonBoundary
 def get_person_router() -> APIRouter:
     router = APIRouter()
 
-    @router.post("/persons/{age}/", response_model=PersonBoundary)
+    @router.post("/{age}/", response_model=PersonBoundary)
     async def create_new_person(
         person: PersonBoundary,
         age: int = Path(..., ge=0),
@@ -18,7 +18,7 @@ def get_person_router() -> APIRouter:
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    @router.get("/persons/", response_model=list[PersonBoundary])
+    @router.get("/", response_model=list[PersonBoundary])
     async def read_persons(
         page: int = Query(1, ge=1),
         size: int = Query(10, ge=1),
@@ -29,7 +29,7 @@ def get_person_router() -> APIRouter:
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    @router.get("/persons/{person_id}/", response_model=PersonBoundary)
+    @router.get("/{person_id}/", response_model=PersonBoundary)
     async def get_person_by_id(
         person_id: int = Path(...),
         service: PersonService = Depends(get_person_service),  # Inject service here

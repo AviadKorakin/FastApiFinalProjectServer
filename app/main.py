@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database import clear_database_if_needed
-from entities.person_entity import Base
 from routers.person_router import get_person_router
+from routers.user_router import get_user_router
 import logging
 
 # Set up basic logging configuration
@@ -13,8 +13,9 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Application startup - checking if database should be cleared...")
-    clear_database_if_needed(Base)
-    logger.info("Database cleared and all tables recreated.")
+
+    # Clear and create database tables if needed
+    clear_database_if_needed()
 
     yield  # This is where the application runs
 
@@ -23,11 +24,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Include routers
-app.include_router(get_person_router())  # Using the dependency-injected router
+app.include_router(get_user_router(), tags=["Users"])  # Using the dependency-injected router
+app.include_router(get_person_router(),tags=["Persons"])  # Using the dependency-injected router
 
 # Add the middleware for logging
 from utils.middleware import log_requests
-
 app.middleware("http")(log_requests)
 
 if __name__ == "__main__":

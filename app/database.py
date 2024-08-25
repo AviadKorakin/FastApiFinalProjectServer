@@ -1,8 +1,11 @@
 import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from dotenv import load_dotenv
 import logging
+from entities.user_entity import Base as UserBase
+from entities.person_entity import Base as PersonBase
 
 # Load environment variables from .env file
 load_dotenv()
@@ -35,10 +38,12 @@ def clear_database(Base):
     Base.metadata.create_all(bind=engine)
     logger.info("Database cleared and all tables recreated.")
 
-def clear_database_if_needed(Base):
+def clear_database_if_needed():
     """Clear the database on startup if the CLEAR_DB_ON_STARTUP environment variable is set to true."""
     if os.getenv("CLEAR_DB_ON_STARTUP") == "true":
         logger.info("CLEAR_DB_ON_STARTUP is true. Clearing database...")
-        clear_database(Base)
+        # Create all tables for all entity bases
+        clear_database(UserBase)
+        clear_database(PersonBase)
     else:
         logger.info("CLEAR_DB_ON_STARTUP is false. Skipping database clearing.")
