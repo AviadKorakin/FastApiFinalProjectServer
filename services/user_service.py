@@ -1,24 +1,42 @@
 from abc import ABC, abstractmethod
-from typing import List
+from fastapi import BackgroundTasks
+from sqlalchemy.ext.asyncio import AsyncSession
 from entities.user_entity import UserEntity
+from typing import List, Optional
+import uuid
 
 class UserService(ABC):
+
     @abstractmethod
-    def create_user(self, email: str, password: str, role: str, username: str, avatar: str = None,
-                    verification_url: str = None) -> UserEntity:
+    async def create_user(self, email: str, password: str, first_name: str, last_name: str, role: str,
+                          phone_number: str, db: AsyncSession = None) -> tuple[UserEntity, str]:
+        pass
+    @abstractmethod
+    async def send_verification_email(self, email: str, verification_url: str):
         pass
 
     @abstractmethod
-    def get_users(self, page: int = 1, size: int = 10) -> List[UserEntity]:
+    async def login_user(self, email: str, password: str, db: AsyncSession) -> Optional[UserEntity]:
         pass
 
     @abstractmethod
-    def get_user_by_email(self, email: str) -> UserEntity | None:
+    async def verify_email(self, user_id: uuid.UUID, token: str, db: AsyncSession) -> bool:
         pass
 
     @abstractmethod
-    def login_user(self, email: str, password: str) -> UserEntity | None:
+    async def reset_token(self, email: str, db: AsyncSession) -> tuple[uuid.UUID, str]:
         pass
+
     @abstractmethod
-    def verify_email(self, email: str, token: str) -> bool:
+    async def update_user_details(self, user_id: uuid.UUID, old_password: str, new_password: Optional[str],
+                                  first_name: Optional[str], last_name: Optional[str],
+                                  phone_number: Optional[str], db: AsyncSession) -> UserEntity:
+        pass
+
+    @abstractmethod
+    async def get_users(self, db: AsyncSession, page: int = 1, size: int = 10) -> List[UserEntity]:
+        pass
+
+    @abstractmethod
+    async def get_user_by_id(self, user_id: uuid.UUID, db: AsyncSession) -> Optional[UserEntity]:
         pass

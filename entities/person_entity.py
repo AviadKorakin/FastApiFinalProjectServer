@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from entities.base import Base  # Import the shared Base
 
 class Person(Base):
     __tablename__ = "persons"

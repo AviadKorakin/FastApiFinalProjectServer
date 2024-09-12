@@ -1,10 +1,21 @@
 fastapi
-psycopg2-binary
-sqlalchemy
-alembic
 uvicorn
-passlib[bcrypt]
-bcrypt
+sqlalchemy[asyncio]  # For async SQLAlchemy support
+asyncpg  # For PostgreSQL async support
+alembic  # For database migrations
+passlib[bcrypt]  # For password hashing
+bcrypt  # For password hashing support
 pydantic
-pydantic[email]
-python-dotenv
+pydantic[email]  # For validating email addresses
+python-dotenv  # For loading environment variables from .env file
+boto3  # AWS SDK for Python
+GeoAlchemy2  # For PostGIS support in SQLAlchemy
+phonenumbers  # For phone number validation and formatting
+zxcvbn  # For password strength validation
+shapely  # For manipulating and analyzing geographic objects
+aiosmtplib  # For sending async emails
+
+# Additional packages for JWT and OAuth2
+python-jose[cryptography]  # For JWT token encoding and decoding
+python-multipart
+

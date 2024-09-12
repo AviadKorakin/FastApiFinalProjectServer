@@ -1,13 +1,15 @@
-from typing import Optional
-from pydantic import BaseModel, EmailStr
+from uuid import UUID
+
+from pydantic import BaseModel,FieldValidationInfo, field_validator
 from enums.role_enum import RoleEnum
 
 class UserBoundary(BaseModel):
-    email: EmailStr
+    user_id:UUID
+    email: str
+    first_name: str
+    last_name: str
+    phone_number: str  # No need to validate on output
     role: RoleEnum
-    username: str
-    avatar: Optional[str] = None
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True

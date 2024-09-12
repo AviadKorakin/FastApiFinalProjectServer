@@ -1,56 +1,44 @@
-from sqlalchemy.orm import Session
-from typing import List, Type
+import uuid
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from typing import List, Optional
 from entities.user_entity import UserEntity
 from repositories.user_repository import UserRepository
-from utils.logging_decorator import log_db_operation
-from app.database import get_db
+
 
 class SQLAlchemyUserRepository(UserRepository):
-    _instance = None
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(SQLAlchemyUserRepository, cls).__new__(cls)
-        return cls._instance
+    async def create(self, user: UserEntity, db: AsyncSession) -> UserEntity:
+        db.add(user)
+        await db.flush()
+        await db.refresh(user)
+        return user
 
-    def _get_session(self) -> Session:
-        """Helper method to get a new session from the get_db function."""
-        db_gen = get_db()  # This is a generator
-        return next(db_gen)
+    async def get_all(self, db: AsyncSession, skip: int = 0, limit: int = 10) -> List[UserEntity]:
+        result = await db.execute(
+            select(UserEntity)
+            .order_by(UserEntity.email)
+            .offset(skip)
+            .limit(limit)
+        )
+        return result.scalars().all()
 
-    @log_db_operation
-    def create(self, user: UserEntity) -> UserEntity:
-        session = self._get_session()
-        try:
-            session.add(user)
-            session.commit()
-            session.refresh(user)
-            return user
-        finally:
-            session.close()
+    async def get_by_id(self, db: AsyncSession, user_id: uuid.UUID) -> Optional[UserEntity]:
+        result = await db.execute(select(UserEntity).filter_by(user_id=user_id))
+        return result.scalar_one_or_none()
 
-    @log_db_operation
-    def get_all(self, skip: int = 0, limit: int = 10) -> list[Type[UserEntity]]:
-        session = self._get_session()
-        try:
-            return session.query(UserEntity).offset(skip).limit(limit).all()
-        finally:
-            session.close()
+    async def get_by_email(self, db: AsyncSession, email: str) -> Optional[UserEntity]:
+        result = await db.execute(select(UserEntity).filter_by(email=email))
+        return result.scalar_one_or_none()
 
-    @log_db_operation
-    def get_by_email(self, email: str) -> UserEntity | None:
-        session = self._get_session()
-        try:
-            return session.query(UserEntity).filter(UserEntity.email == email).first()
-        finally:
-            session.close()
+    async def update(self, db: AsyncSession, user: UserEntity) -> UserEntity:
+        await db.merge(user)
+        await db.flush()
+        await db.refresh(user)
+        return user
 
-    @log_db_operation
-    def update(self, user: UserEntity) -> UserEntity:
-        session = self._get_session()
-        try:
-            session.merge(user)
-            session.commit()
-            return user
-        finally:
-            session.close()
+    async def update_user_details(self, user: UserEntity, db: AsyncSession) -> UserEntity:
+        await db.flush()
+        await db.refresh(user)
+        return user
